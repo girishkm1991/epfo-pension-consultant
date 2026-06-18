@@ -1,0 +1,18 @@
+{
+  "name": "epfo-pension-consultant-crm",
+  "version": "1.0.0",
+  "description": "EPFO Pension Consultant CRM - Manage clients, payments, and reminders",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8000"
+  },
+  "keywords": [
+    "epfo",
+    "pension",
+    "consultant",
+    "crm",
+    "client-management"
+  ],
+  "author": "",
+  "license": "MIT"
+}

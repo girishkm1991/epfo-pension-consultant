@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPFO Pension Consultant CRM</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📋</div>
+                <h1>EPFO CRM</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-page="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-page="clients">
+                    <span class="icon">👥</span>
+                    <span>All Clients</span>
+                </button>
+                <button class="nav-btn" data-page="add-client">
+                    <span class="icon">➕</span>
+                    <span>Add Client</span>
+                </button>
+                <button class="nav-btn" data-page="payments">
+                    <span class="icon">💰</span>
+                    <span>Payments</span>
+                </button>
+                <button class="nav-btn" data-page="reminders">
+                    <span class="icon">🔔</span>
+                    <span>Reminders</span>
+                </button>
+                <button class="nav-btn" data-page="reports">
+                    <span class="icon">📈</span>
+                    <span>Reports</span>
+                </button>
+                <button class="nav-btn" data-page="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search clients...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <div class="user-menu">
+                        <button class="user-btn">👤 Profile</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Clients</div>
+                            <div class="stat-value" id="totalClients">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💵</div>
+                        <div class="stat-content">
+                            <div class="stat-label">This Month Revenue</div>
+                            <div class="stat-value" id="monthRevenue">₹0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💳</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Collected</div>
+                            <div class="stat-value" id="totalCollected">₹0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Pending Follow-ups</div>
+                            <div class="stat-value" id="pendingFollowups">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="card">
+                        <h3>Today's Meetings</h3>
+                        <div id="todaysMeetings" class="meetings-list"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Recent Payments</h3>
+                        <div id="recentPayments" class="payments-list"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Pending Reminders</h3>
+                        <div id="pendingReminders" class="reminders-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Page -->
+            <div id="clients" class="page">
+                <div class="page-header">
+                    <h3>All Clients</h3>
+                    <div class="filter-bar">
+                        <select id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="app.exportClients()">📥 Export</button>
+                    </div>
+                </div>
+                <div id="clientsList" class="clients-table-container"></div>
+            </div>
+
+            <!-- Add Client Page -->
+            <div id="add-client" class="page">
+                <div class="form-card">
+                    <h3>Add New Client</h3>
+                    <form id="clientForm">
+                        <div class="form-section">
+                            <h4>Personal Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" id="clientName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Birth</label>
+                                    <input type="date" id="clientDOB">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>AADHAR Number</label>
+                                    <input type="text" id="aadhar" placeholder="XXXX XXXX XXXX XXXX">
+                                </div>
+                                <div class="form-group">
+                                    <label>PAN Number</label>
+                                    <input type="text" id="pan" placeholder="XXXXXXXXXXX">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>EPFO Details</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>UAN (Universal Account Number) *</label>
+                                    <input type="text" id="uan" required placeholder="12 digit UAN">
+                                </div>
+                                <div class="form-group">
+                                    <label>Pension Status</label>
+                                    <select id="pensionStatus">
+                                        <option value="not-started">Not Started</option>
+                                        <option value="in-process">In Process</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="active">Active</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Monthly Pension Amount (₹)</label>
+                                    <input type="number" id="pensionAmount" min="0" step="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Pension Start Date</label>
+                                    <input type="date" id="pensionStartDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Contact Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="email">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full">
+                                    <label>Address</label>
+                                    <textarea id="address" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Service Details</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Service Type</label>
+                                    <select id="serviceType">
+                                        <option value="pension-filing">Pension Application Filing</option>
+                                        <option value="documentation">Documentation Support</option>
+                                        <option value="query-resolution">Query Resolution</option>
+                                        <option value="renewal">Renewal/Update</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Service Fee (₹) *</label>
+                                    <input type="number" id="serviceFee" required min="0" step="100">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Payment Status</label>
+                                    <select id="paymentStatus">
+                                        <option value="pending">Pending</option>
+                                        <option value="partial">Partial</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Amount Paid (₹)</label>
+                                    <input type="number" id="amountPaid" min="0" step="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Notes</h4>
+                            <textarea id="notes" rows="3" placeholder="Add any additional notes..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Client</button>
+                            <button type="reset" class="btn btn-secondary">Clear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payments Page -->
+            <div id="payments" class="page">
+                <div class="page-header">
+                    <h3>Payment Records</h3>
+                    <button class="btn btn-primary" onclick="app.switchPage('add-payment')">➕ Add Payment</button>
+                </div>
+                <div id="paymentsList" class="payments-table-container"></div>
+            </div>
+
+            <!-- Add Payment Modal-like Page -->
+            <div id="add-payment" class="page" style="display:none;">
+                <div class="form-card">
+                    <h3>Record Payment</h3>
+                    <form id="paymentForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Select Client *</label>
+                                <select id="paymentClientId" required>
+                                    <option value="">Choose a client...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Amount (₹) *</label>
+                                <input type="number" id="paymentAmount" required min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Payment Date *</label>
+                                <input type="date" id="paymentDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select id="paymentMethod">
+                                    <option value="cash">Cash</option>
+                                    <option value="upi">UPI</option>
+                                    <option value="bank-transfer">Bank Transfer</option>
+                                    <option value="cheque">Cheque</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>Description/Reference</label>
+                                <textarea id="paymentDescription" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Record Payment</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.switchPage('payments')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reminders Page -->
+            <div id="reminders" class="page">
+                <div class="page-header">
+                    <h3>Follow-up Reminders</h3>
+                    <button class="btn btn-primary" onclick="app.switchPage('add-reminder')">➕ Add Reminder</button>
+                </div>
+                <div id="remindersList" class="reminders-table-container"></div>
+            </div>
+
+            <!-- Add Reminder Page -->
+            <div id="add-reminder" class="page" style="display:none;">
+                <div class="form-card">
+                    <h3>Add Follow-up Reminder</h3>
+                    <form id="reminderForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Select Client *</label>
+                                <select id="reminderClientId" required>
+                                    <option value="">Choose a client...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Reminder Type</label>
+                                <select id="reminderType">
+                                    <option value="follow-up">Follow-up Call</option>
+                                    <option value="payment">Payment Due</option>
+                                    <option value="document">Document Submission</option>
+                                    <option value="status-check">Status Check</option>
+                                    <option value="meeting">Schedule Meeting</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Reminder Date *</label>
+                                <input type="date" id="reminderDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority</label>
+                                <select id="reminderPriority">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>Description</label>
+                                <textarea id="reminderDescription" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create Reminder</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.switchPage('reminders')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports" class="page">
+                <div class="reports-grid">
+                    <div class="report-section">
+                        <h3>Revenue Analytics</h3>
+                        <div class="month-selector">
+                            <button id="prevMonth" class="btn btn-sm">← Previous</button>
+                            <input type="month" id="reportMonth">
+                            <button id="nextMonth" class="btn btn-sm">Next →</button>
+                        </div>
+                        <div id="revenueReport" class="report-content"></div>
+                    </div>
+                    <div class="report-section">
+                        <h3>Client Statistics</h3>
+                        <div id="clientStats" class="report-content"></div>
+                    </div>
+                </div>
+                <div class="reports-grid">
+                    <div class="report-section full">
+                        <h3>Payment Summary</h3>
+                        <div id="paymentSummary" class="report-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <div class="form-card">
+                    <h3>App Settings</h3>
+                    <div class="settings-section">
+                        <h4>Backup & Export</h4>
+                        <div class="settings-options">
+                            <button class="btn btn-secondary" onclick="app.backupData()">💾 Backup Data</button>
+                            <button class="btn btn-secondary" onclick="app.restoreData()">📂 Restore Data</button>
+                            <button class="btn btn-secondary" onclick="app.exportToCSV()">📊 Export to CSV</button>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h4>Data Management</h4>
+                        <div class="settings-options">
+                            <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Clear All Data</button>
+                        </div>
+                        <p class="warning-text">⚠️ Warning: This action cannot be undone!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Client Details -->
+    <div id="clientModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="app.closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert" class="alert" style="display:none;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
