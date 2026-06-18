@@ -5,6 +5,7 @@ class EPFOConsultantCRM {
         this.payments = JSON.parse(localStorage.getItem('epfoPayments')) || [];
         this.reminders = JSON.parse(localStorage.getItem('epfoReminders')) || [];
         this.nextId = JSON.parse(localStorage.getItem('nextEPFOId')) || 1;
+        this.editingClientId = null;
         this.init();
     }
 
@@ -60,7 +61,7 @@ class EPFOConsultantCRM {
         const titleMap = {
             'dashboard': 'Dashboard',
             'clients': 'All Clients',
-            'add-client': 'Add New Client',
+            'add-client': this.editingClientId ? 'Edit Client' : 'Add New Client',
             'payments': 'Payment Records',
             'reminders': 'Follow-up Reminders',
             'add-reminder': 'Add Reminder',
@@ -81,33 +82,64 @@ class EPFOConsultantCRM {
     handleAddClient(e) {
         e.preventDefault();
 
-        const client = {
-            id: this.nextId++,
-            name: document.getElementById('clientName').value,
-            dob: document.getElementById('clientDOB').value,
-            aadhar: document.getElementById('aadhar').value,
-            pan: document.getElementById('pan').value,
-            uan: document.getElementById('uan').value,
-            pensionStatus: document.getElementById('pensionStatus').value,
-            pensionAmount: parseFloat(document.getElementById('pensionAmount').value) || 0,
-            pensionStartDate: document.getElementById('pensionStartDate').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            address: document.getElementById('address').value,
-            serviceType: document.getElementById('serviceType').value,
-            serviceFee: parseFloat(document.getElementById('serviceFee').value),
-            paymentStatus: document.getElementById('paymentStatus').value,
-            amountPaid: parseFloat(document.getElementById('amountPaid').value) || 0,
-            notes: document.getElementById('notes').value,
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
+        if (this.editingClientId) {
+            // Update existing client
+            const client = this.clients.find(c => c.id === this.editingClientId);
+            if (client) {
+                client.name = document.getElementById('clientName').value;
+                client.dob = document.getElementById('clientDOB').value;
+                client.aadhar = document.getElementById('aadhar').value;
+                client.pan = document.getElementById('pan').value;
+                client.uan = document.getElementById('uan').value;
+                client.pensionStatus = document.getElementById('pensionStatus').value;
+                client.pensionAmount = parseFloat(document.getElementById('pensionAmount').value) || 0;
+                client.pensionStartDate = document.getElementById('pensionStartDate').value;
+                client.phone = document.getElementById('phone').value;
+                client.email = document.getElementById('email').value;
+                client.address = document.getElementById('address').value;
+                client.serviceType = document.getElementById('serviceType').value;
+                client.serviceFee = parseFloat(document.getElementById('serviceFee').value);
+                client.paymentStatus = document.getElementById('paymentStatus').value;
+                client.amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+                client.notes = document.getElementById('notes').value;
+                client.updatedAt = new Date().toISOString();
 
-        this.clients.push(client);
-        this.saveData();
-        this.showAlert('Client added successfully!', 'success');
-        document.getElementById('clientForm').reset();
-        this.switchPage('clients');
+                this.saveData();
+                this.showAlert('Client updated successfully!', 'success');
+                this.editingClientId = null;
+                document.getElementById('clientForm').reset();
+                this.switchPage('clients');
+            }
+        } else {
+            // Add new client
+            const client = {
+                id: this.nextId++,
+                name: document.getElementById('clientName').value,
+                dob: document.getElementById('clientDOB').value,
+                aadhar: document.getElementById('aadhar').value,
+                pan: document.getElementById('pan').value,
+                uan: document.getElementById('uan').value,
+                pensionStatus: document.getElementById('pensionStatus').value,
+                pensionAmount: parseFloat(document.getElementById('pensionAmount').value) || 0,
+                pensionStartDate: document.getElementById('pensionStartDate').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                serviceType: document.getElementById('serviceType').value,
+                serviceFee: parseFloat(document.getElementById('serviceFee').value),
+                paymentStatus: document.getElementById('paymentStatus').value,
+                amountPaid: parseFloat(document.getElementById('amountPaid').value) || 0,
+                notes: document.getElementById('notes').value,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
+
+            this.clients.push(client);
+            this.saveData();
+            this.showAlert('Client added successfully!', 'success');
+            document.getElementById('clientForm').reset();
+            this.switchPage('clients');
+        }
         this.populateSelectOptions();
     }
 
@@ -148,9 +180,9 @@ class EPFOConsultantCRM {
                                 <td>${this.escapeHtml(client.uan)}</td>
                                 <td>${this.escapeHtml(client.phone)}</td>
                                 <td>${client.serviceType}</td>
-                                <td>\u20b9${client.serviceFee.toFixed(0)}</td>
-                                <td>\u20b9${client.amountPaid.toFixed(0)}</td>
-                                <td>\u20b9${(client.serviceFee - client.amountPaid).toFixed(0)}</td>
+                                <td>₹${client.serviceFee.toFixed(0)}</td>
+                                <td>₹${client.amountPaid.toFixed(0)}</td>
+                                <td>₹${(client.serviceFee - client.amountPaid).toFixed(0)}</td>
                                 <td><span class="badge badge-${client.paymentStatus}">${client.paymentStatus}</span></td>
                                 <td>
                                     <div class="action-buttons">
@@ -189,7 +221,7 @@ class EPFOConsultantCRM {
                         <h4>EPFO Details</h4>
                         <p><strong>UAN:</strong> ${this.escapeHtml(client.uan)}</p>
                         <p><strong>Status:</strong> ${client.pensionStatus}</p>
-                        <p><strong>Monthly Amount:</strong> \u20b9${client.pensionAmount}</p>
+                        <p><strong>Monthly Amount:</strong> ₹${client.pensionAmount}</p>
                         <p><strong>Start Date:</strong> ${client.pensionStartDate || 'N/A'}</p>
                     </div>
                     <div class="detail-section">
@@ -201,9 +233,9 @@ class EPFOConsultantCRM {
                     <div class="detail-section">
                         <h4>Service Details</h4>
                         <p><strong>Type:</strong> ${client.serviceType}</p>
-                        <p><strong>Fee:</strong> \u20b9${client.serviceFee}</p>
-                        <p><strong>Paid:</strong> \u20b9${client.amountPaid}</p>
-                        <p><strong>Pending:</strong> \u20b9${client.serviceFee - client.amountPaid}</p>
+                        <p><strong>Fee:</strong> ₹${client.serviceFee}</p>
+                        <p><strong>Paid:</strong> ₹${client.amountPaid}</p>
+                        <p><strong>Pending:</strong> ₹${client.serviceFee - client.amountPaid}</p>
                     </div>
                 </div>
                 <div class="detail-section">
@@ -217,7 +249,7 @@ class EPFOConsultantCRM {
                                 ${clientPayments.map(p => `
                                     <tr>
                                         <td>${this.formatDate(p.date)}</td>
-                                        <td>\u20b9${p.amount}</td>
+                                        <td>₹${p.amount}</td>
                                         <td>${p.method}</td>
                                         <td>${this.escapeHtml(p.description)}</td>
                                     </tr>
@@ -240,7 +272,41 @@ class EPFOConsultantCRM {
     }
 
     editClient(id) {
-        this.showAlert('Edit functionality - populate form and switch to add-client page', 'warning');
+        const client = this.clients.find(c => c.id === id);
+        if (!client) return;
+
+        // Populate form with client data
+        document.getElementById('clientName').value = client.name;
+        document.getElementById('clientDOB').value = client.dob || '';
+        document.getElementById('aadhar').value = client.aadhar || '';
+        document.getElementById('pan').value = client.pan || '';
+        document.getElementById('uan').value = client.uan;
+        document.getElementById('pensionStatus').value = client.pensionStatus;
+        document.getElementById('pensionAmount').value = client.pensionAmount;
+        document.getElementById('pensionStartDate').value = client.pensionStartDate || '';
+        document.getElementById('phone').value = client.phone;
+        document.getElementById('email').value = client.email || '';
+        document.getElementById('address').value = client.address || '';
+        document.getElementById('serviceType').value = client.serviceType;
+        document.getElementById('serviceFee').value = client.serviceFee;
+        document.getElementById('paymentStatus').value = client.paymentStatus;
+        document.getElementById('amountPaid').value = client.amountPaid;
+        document.getElementById('notes').value = client.notes || '';
+
+        // Set editing flag
+        this.editingClientId = id;
+
+        // Change button text
+        const submitBtn = document.querySelector('#clientForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Update Client';
+        }
+
+        // Switch to add-client page
+        this.switchPage('add-client');
+
+        // Scroll to form
+        document.querySelector('#add-client').scrollIntoView({ behavior: 'smooth' });
     }
 
     deleteClient(id) {
@@ -316,7 +382,7 @@ class EPFOConsultantCRM {
                             return `
                                 <tr>
                                     <td>${client ? this.escapeHtml(client.name) : 'Unknown'}</td>
-                                    <td>\u20b9${payment.amount.toFixed(0)}</td>
+                                    <td>₹${payment.amount.toFixed(0)}</td>
                                     <td>${this.formatDate(payment.date)}</td>
                                     <td>${payment.method}</td>
                                     <td>${this.escapeHtml(payment.description)}</td>
@@ -462,10 +528,10 @@ class EPFOConsultantCRM {
         const monthRevenue = this.payments
             .filter(p => p.date.startsWith(thisMonth))
             .reduce((sum, p) => sum + p.amount, 0);
-        document.getElementById('monthRevenue').textContent = '\u20b9' + monthRevenue.toFixed(0);
+        document.getElementById('monthRevenue').textContent = '₹' + monthRevenue.toFixed(0);
 
         const totalCollected = this.payments.reduce((sum, p) => sum + p.amount, 0);
-        document.getElementById('totalCollected').textContent = '\u20b9' + totalCollected.toFixed(0);
+        document.getElementById('totalCollected').textContent = '₹' + totalCollected.toFixed(0);
 
         const pendingFollowups = this.reminders.filter(r => !r.completed).length;
         document.getElementById('pendingFollowups').textContent = pendingFollowups;
@@ -490,7 +556,7 @@ class EPFOConsultantCRM {
             : recentPayments.map(p => {
                 const client = this.clients.find(c => c.id === p.clientId);
                 return `<div class="list-item">
-                    <div><strong>${client?.name || 'Unknown'}</strong><br>\u20b9${p.amount} - ${p.method}</div>
+                    <div><strong>${client?.name || 'Unknown'}</strong><br>₹${p.amount} - ${p.method}</div>
                     <span>${this.formatDate(p.date)}</span>
                 </div>`;
             }).join('');
@@ -524,7 +590,7 @@ class EPFOConsultantCRM {
             <div class="report-stat">
                 <div class="report-stat-item">
                     <div class="report-stat-label">Total Revenue</div>
-                    <div class="report-stat-value">\u20b9${totalRevenue.toFixed(0)}</div>
+                    <div class="report-stat-value">₹${totalRevenue.toFixed(0)}</div>
                 </div>
                 <div class="report-stat-item">
                     <div class="report-stat-label">Transactions</div>
@@ -532,7 +598,7 @@ class EPFOConsultantCRM {
                 </div>
                 <div class="report-stat-item">
                     <div class="report-stat-label">Average Payment</div>
-                    <div class="report-stat-value">\u20b9${avgPayment.toFixed(0)}</div>
+                    <div class="report-stat-value">₹${avgPayment.toFixed(0)}</div>
                 </div>
             </div>
             <h5>Payment Breakdown</h5>
@@ -548,7 +614,7 @@ class EPFOConsultantCRM {
                                 <tr>
                                     <td>${this.formatDate(p.date)}</td>
                                     <td>${client?.name || 'Unknown'}</td>
-                                    <td>\u20b9${p.amount}</td>
+                                    <td>₹${p.amount}</td>
                                     <td>${p.method}</td>
                                 </tr>
                             `;
@@ -586,9 +652,9 @@ class EPFOConsultantCRM {
                 </div>
             </div>
             <h5>Fee Summary</h5>
-            <p><strong>Total Service Fees:</strong> \u20b9${totalFees.toFixed(0)}</p>
-            <p><strong>Total Collected:</strong> \u20b9${totalPaid.toFixed(0)}</p>
-            <p><strong>Outstanding:</strong> \u20b9${(totalFees - totalPaid).toFixed(0)}</p>
+            <p><strong>Total Service Fees:</strong> ₹${totalFees.toFixed(0)}</p>
+            <p><strong>Total Collected:</strong> ₹${totalPaid.toFixed(0)}</p>
+            <p><strong>Outstanding:</strong> ₹${(totalFees - totalPaid).toFixed(0)}</p>
         `;
         document.getElementById('clientStats').innerHTML = statsHtml;
 
@@ -603,7 +669,7 @@ class EPFOConsultantCRM {
                 ${Object.entries(paymentMethods).map(([method, amount]) => `
                     <div class="report-stat-item">
                         <div class="report-stat-label">${method}</div>
-                        <div class="report-stat-value">\u20b9${amount.toFixed(0)}</div>
+                        <div class="report-stat-value">₹${amount.toFixed(0)}</div>
                     </div>
                 `).join('')}
             </div>
